@@ -1,0 +1,29 @@
+directorio_ampere=~/ampere
+parametros_ampere=~/ampere/parametros.txt
+
+#archivo=kmer-solution_alumno16.ipynb
+
+directorio=$(shell cat $(parametros_ampere) | cut -d ' ' -f 1)
+id=$(shell cat $(parametros_ampere) | cut -d ' ' -f 2)
+
+
+.PHONY : ayuda
+ayuda :
+	@echo "Este programa está diseñado para el envío del alineamiento de secuencias a los nodos del cluster y la recuperación del archivo con los resultados"
+	@echo "cola_ampere : envía el archivo a ejecutarse en la cola de ampere."
+	@echo "copiar : copia el output generado por slurm del nodo de trabajo selecionado al directorio actual, y el archivo 'results-blast.txt' dentro del directorio blast."
+
+.PHONY : cola_ampere
+cola_ampere : submit_blast_singul_ampere-alumno16.sh blast/zebrafish.1.protein.faa.gz blast/P04156.fasta
+	cp $^ $(directorio_ampere)/.
+	sbatch $<
+
+.PHONY : copiar
+copiar :
+	cp $(directorio_ampere)/$(id)  $(directorio)/.
+	cp $(directorio_ampere)/results-blast.txt  $(directorio)/blast/.
+
+
+.PHONY : clear
+clear :
+	rm $(directorio_ampere)/parametros.txt
